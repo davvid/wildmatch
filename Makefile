@@ -11,11 +11,15 @@ builddir ?= $(CURDIR)/build/$(platformdir)
 prefix ?= $(CURDIR)/$(platformdir)
 #DESTDIR =
 
+ifdef V
+    VERBOSE=1
+    export VERBOSE
+endif
 CMAKE_FLAGS ?= -DCMAKE_INSTALL_PREFIX=$(prefix)
+CMAKE_FILES = CMakeLists.txt
 
 # The default target in this Makefile is...
 all::
-.PHONY: all
 
 install: all
 	$(MAKE) -C $(builddir) DESTDIR=$(DESTDIR) install
@@ -28,7 +32,12 @@ $(builddir)/stamp: $(CMAKE_FILES)
 
 all:: $(builddir)/stamp
 	$(MAKE) -C $(builddir) $(MAKEARGS) all
+.PHONY: all
 
 clean: $(builddir)/stamp
 	$(MAKE) -C $(builddir) $(MAKEARGS) clean
 .PHONY: clean
+
+test: all
+	$(MAKE) -C $(builddir) $(MAKEARGS) test
+.PHONY: test

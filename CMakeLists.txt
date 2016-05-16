@@ -1,17 +1,17 @@
 cmake_minimum_required(VERSION 2.6.0)
 project(wildmatch)
-include(GNUInstallDirs)
 
-set(CMAKE_VERBOSE_MAKEFILE true)
+include(GNUInstallDirs)
+include(CTest)
+
+enable_testing()
+set(CMAKE_SKIP_INSTALL_RPATH true)
 set(${PROJECT_NAME}_MAJOR_VERSION 0)
 set(${PROJECT_NAME}_MINOR_VERSION 5)
 set(${PROJECT_NAME}_PATCH_LEVEL 0)
-# Flags
-set(CMAKE_CXX_FLAGS -fPIC)
-add_definitions(-Wextra -Wno-unused-parameter)
+
+set(PROJECT_CFLAGS -std=c89 -Wall -Wextra -Wno-unused-parameter)
 include_directories(${CMAKE_SOURCE_DIR})
 
-# Library
-file(GLOB sources "*.cpp")
-add_library(wildmatch SHARED ${sources})
-install(TARGETS wildmatch DESTINATION ${CMAKE_INSTALL_LIBDIR})
+add_subdirectory(wildmatch)
+add_subdirectory(tests)
