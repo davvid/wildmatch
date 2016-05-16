@@ -59,9 +59,9 @@ int main(int argc, char **argv)
     nomatch("", "\\");
     nomatch("\\", "");
     match("\\\\", "\\");
-    match("\\", "\\"); /* TODO */
+    nomatch("\\", "\\");
     make_test("\\", "\\", WM_NOESCAPE, WM_MATCH);
-    match("*/\\", "XXX/\\"); /* TODO */
+    nomatch("*/\\", "XXX/\\");
     make_test("*/\\", "XXX/\\", WM_NOMATCH, WM_MATCH);
     match("*/\\\\", "XXX/\\");
     match("@foo", "@foo");

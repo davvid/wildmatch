@@ -134,6 +134,9 @@ int wildmatch(const char *pattern, const char *string, int flags)
                 if ((c = *pattern++) == EOS) {
                     c = '\\';
                     --pattern;
+                    if (*(string+1) == EOS) {
+                        return WM_NOMATCH;
+                    }
                 }
             }
             /* FALLTHROUGH */
