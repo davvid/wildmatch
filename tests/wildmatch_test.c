@@ -1,3 +1,9 @@
+/* Many of the test cases below are based on
+ * https://github.com/vmeurisse/wildmatch/blob/master/test/git/t3070-wildmatch.js
+ * which is itself based on t/t3070-wildmatch.sh from Git.
+ *
+ * The test cases are GPL 2.0-licensed, like Git itself.
+ */
 #include <wildmatch/wildmatch.h>
 #include "test-wildmatch.h"
 
@@ -22,18 +28,15 @@
     make_test(pattern, string, WM_WILDSTAR, WM_NOMATCH); \
 }}
 
-#define BASIC_TESTS 1
-#define ADDITIONAL_TESTS 1
-#define EXTENDED_TESTS 1
+#define run(expr) {{ \
+    if ((expr)) { \
+        return 1; \
+    } \
+}}
 
-int main(int argc, char **argv)
+
+int basic_tests()
 {
-    /* Based on
-     * https://github.com/vmeurisse/wildmatch/blob/master/test/git/t3070-wildmatch.js
-     * which is itself based on t/t3070-wildmatch.sh from Git.
-     */
-
-#if BASIC_TESTS
     /* Basic fnmatch-like features */
     match("foo", "foo");
     nomatch("foo", "bar");
@@ -64,9 +67,11 @@ int main(int argc, char **argv)
     nomatch("a[]-]b", "aab");
     match("a[]a-]b", "aab");
     match("]", "]");
-#endif
+    return 0;
+}
 
-#if ADDITIONAL_TESTS
+int additional_tests()
+{
     /* Various additional tests */
     nomatch("a[c-c]st", "acrt");
     match("a[c-c]rt", "acrt");
@@ -91,9 +96,11 @@ int main(int argc, char **argv)
     match("\\a\\b\\c", "abc");
     nomatch("", "foo");
     match("**/t[o]", "foo/bar/baz/to");
-#endif
+    return 0;
+}
 
-#if EXTENDED_TESTS
+int extended_tests()
+{
     /* TODO extended slash-matching features */
     nowmatch("foo*bar", "foo/baz/bar");
     nowmatch("foo**bar", "foo/baz/bar");
@@ -104,14 +111,11 @@ int main(int argc, char **argv)
     wmatch("foo/**/bar", "foo/b/a/z/bar");
     wmatch("foo/**/**/bar", "foo/baz/bar");
     wmatch("foo/**/**/*****/**/*******/**/bar", "foo/baz/bar");
-#endif
+    return 0;
+}
 
-    /* TODO character-class tests */
-    /* TODO malformed patterns */
-    /* TODO recursion and abort code */
-    /* TODO case-sensitivity features */
-    /* TODO additional tests */
-
+int wildmatch_tests()
+{
     /* Additional wildmatch tests */
     match("/test/*", "/test/path");
     make_test("/test/*", "/test/path", WM_PATHNAME, WM_MATCH);
@@ -120,6 +124,20 @@ int main(int argc, char **argv)
     match("/test/*/a", "/test/a/bc/c/d/a");
     match("/test/**/a", "/test/a/bc/c/d/a");
     make_test("/test/**/a", "/test/a/bc/c/d/a", WM_PATHNAME, WM_NOMATCH);
+    return 0;
+}
+
+int main(int argc, char **argv)
+{
+    run(basic_tests());
+    run(additional_tests());
+    run(extended_tests());
+    /* TODO character-class tests */
+    /* TODO malformed patterns */
+    /* TODO recursion and abort code */
+    /* TODO case-sensitivity features */
+    /* TODO additional tests */
+    run(wildmatch_tests());
 
     printf("success: all tests passed\n");
     return 0;
