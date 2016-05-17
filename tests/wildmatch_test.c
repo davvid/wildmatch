@@ -194,6 +194,25 @@ int additional_malformed_tests()
     wnomatch("[[-\\]]", "-");
     return 0;
 }
+
+int recursions_tests()
+{
+    wmatch("-*-*-*-*-*-*-12-*-*-*-m-*-*-*", "-adobe-courier-bold-o-normal--12-120-75-75-m-70-iso8859-1");
+    wnomatch("-*-*-*-*-*-*-12-*-*-*-m-*-*-*", "-adobe-courier-bold-o-normal--12-120-75-75-X-70-iso8859-1");
+    wnomatch("-*-*-*-*-*-*-12-*-*-*-m-*-*-*", "-adobe-courier-bold-o-normal--12-120-75-75-/-70-iso8859-1");
+    wmatch("XXX/*/*/*/*/*/*/12/*/*/*/m/*/*/*", "XXX/adobe/courier/bold/o/normal//12/120/75/75/m/70/iso8859/1");
+    wnomatch("XXX/*/*/*/*/*/*/12/*/*/*/m/*/*/*", "XXX/adobe/courier/bold/o/normal//12/120/75/75/X/70/iso8859/1");
+    wmatch("**/*a*b*g*n*t", "abcd/abcdefg/abcdefghijk/abcdefghijklmnop.txt");
+    wnomatch("**/*a*b*g*n*t", "abcd/abcdefg/abcdefghijk/abcdefghijklmnop.txtz");
+    wnomatch("*/*/*", "foo");
+    wnomatch("*/*/*", "foo/bar");
+    wmatch("*/*/*", "foo/bba/arr");
+    wnomatch("*/*/*", "foo/bb/aa/rr");
+    wmatch("**/**/**", "foo/bb/aa/rr");
+    wmatch("*X*i", "abcXdefXghi");
+    wnomatch("*X*i", "ab/cXd/efXg/hi");
+    wmatch("*/*X*/*/*i", "ab/cXd/efXg/hi");
+    wmatch("**/*X*/**/*i", "ab/cXd/efXg/hi");
     return 0;
 }
 
@@ -224,7 +243,7 @@ int main(int argc, char **argv)
     run(extended_tests());
     /* TODO character-class tests */
     run(additional_malformed_tests());
-    /* TODO recursion and abort code */
+    run(recursions_tests());
     /* TODO case-sensitivity features */
     /* TODO additional tests */
     run(wildmatch_tests());
