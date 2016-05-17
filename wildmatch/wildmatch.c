@@ -123,7 +123,7 @@ int wildmatch(const char *pattern, const char *string, int flags)
                 }
             } else if (c == '/') {
                 if (wild) {
-                    slash = strchr(stringstart, '/');
+                    slash = (char *)strchr(stringstart, '/');
                     if (!slash) {
                         return WM_NOMATCH;
                     }
