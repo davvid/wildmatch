@@ -257,7 +257,17 @@ int case_sensitivity_tests()
     imatch("[B-a]", "a");
     imatch("[Z-y]", "z");
     imatch("[Z-y]", "Z");
+    return 0;
+}
 
+int extra_tests()
+{
+    /* TODO
+    wmatch("[[:space:]-\\]]", "-");
+    */
+    wmatch("[]-z]", "c");
+    wnomatch("[]-z]", "-");
+    wnomatch("[[:space:]-z]", "c");
     return 0;
 }
 
@@ -290,7 +300,7 @@ int main(int argc, char **argv)
     run(additional_malformed_tests());
     run(recursions_tests());
     run(case_sensitivity_tests());
-    /* TODO additional tests */
+    run(extra_tests());
     run(wildmatch_tests());
 
     printf("success: all tests passed\n");
