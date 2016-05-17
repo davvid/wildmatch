@@ -110,6 +110,31 @@ int extended_tests()
     wmatch("foo/**/bar", "foo/b/a/z/bar");
     wmatch("foo/**/**/bar", "foo/baz/bar");
     wmatch("foo/**/**/*****/**/*******/**/bar", "foo/baz/bar");
+    wmatch("foo/**/**/bar", "foo/b/a/z/bar");
+    wmatch("foo/**/bar", "foo/bar");
+    wmatch("**/bar", "foo/bar");
+    wmatch("**", "foo/bar");
+    wmatch("**", "");
+    wmatch("foo/**/**/bar", "foo/bar");
+    nowmatch("foo?bar", "foo/bar");
+    nowmatch("foo[/]bar", "foo/bar");
+    nowmatch("f[^eiu][^eiu][^eiu][^eiu][^eiu]r", "foo/bar");
+    wmatch("f[^eiu][^eiu][^eiu][^eiu][^eiu]r", "foo-bar");
+    wmatch("**/foo", "/foo");
+    nowmatch("**/foo", "foo"); /* Differs from the js tests */
+    wmatch("**/foo", "XXX/foo");
+    wmatch("**/foo", "bar/baz/foo");
+    nowmatch("*/foo", "bar/baz/foo");
+    nowmatch("**/bar*", "foo/bar/baz");
+    wmatch("**/bar/*", "deep/foo/bar/baz");
+    nowmatch("**/bar/*", "deep/foo/bar/baz/");
+    wmatch("**/bar/**", "deep/foo/bar/baz/");
+    nowmatch("**/bar/*", "deep/foo/bar");
+    wmatch("**/bar/**", "deep/foo/bar/");
+    wmatch("**/bar**", "foo/bar/baz");  /* Differs from the js tests */
+    wmatch("*/bar/**", "foo/bar/baz/x");
+    nowmatch("*/bar/**", "deep/foo/bar/baz/x");
+    wmatch("**/bar/*/*", "deep/foo/bar/baz/x");
     return 0;
 }
 

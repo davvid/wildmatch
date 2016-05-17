@@ -117,15 +117,13 @@ int wildmatch(const char *pattern, const char *string, int flags)
                 }
                 if (ISSET(flags, WM_PATHNAME)) {
                     return (ISSET(flags, WM_LEADING_DIR) ||
-                        strchr(string, '/') == NULL ?
-                        0 : WM_NOMATCH);
+                        strchr(string, '/') == NULL ?  0 : WM_NOMATCH);
                 } else {
                     return (0);
                 }
-
             } else if (c == '/') {
                 if (wild) {
-                    slash = strchr(string, '/');
+                    slash = strchr(stringstart, '/');
                     if (!slash) {
                         return WM_NOMATCH;
                     }
