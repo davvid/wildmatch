@@ -138,6 +138,63 @@ int extended_tests()
     return 0;
 }
 
+int additional_malformed_tests()
+{
+    wmatch("[\\\\-^]", "]");
+    nowmatch("[\\\\-^]", "[");
+    wmatch("[\\-_]", "-");
+    wmatch("[\\]]", "]");
+    nowmatch("[\\]]", "\\]");
+    nowmatch("[\\]]", "\\");
+    nowmatch("a[]b", "ab");
+    /* TODO
+    nowmatch("a[]b", "a[]b");
+    nowmatch("ab[", "ab[");
+    */
+    nowmatch("[!", "ab");
+    nowmatch("[-", "ab");
+    wmatch("[-]", "-");
+    nowmatch("[a-", "-");
+    nowmatch("[!a-", "-");
+    wmatch("[--A]", "-");
+    wmatch("[--A]", "5");
+    wmatch("[ --]", " ");
+    wmatch("[ --]", "$");
+    wmatch("[ --]", "-");
+    nowmatch("[ --]", "0");
+    wmatch("[---]", "-");
+    wmatch("[------]", "-");
+    nowmatch("[a-e-n]", "j");
+    wmatch("[a-e-n]", "-");
+    wmatch("[!------]", "a");
+    nowmatch("[]-a]", "[");
+    wmatch("[]-a]", "^");
+    nowmatch("[!]-a]", "^");
+    wmatch("[!]-a]", "[");
+    wmatch("[a^bc]", "^");
+    wmatch("[a-]b]", "-b]");
+    nowmatch("[\\]", "\\");
+    wmatch("[\\\\]", "\\");
+    nowmatch("[!\\\\]", "\\");
+    wmatch("[A-\\\\]", "G");
+    nowmatch("b*a", "aaabbb");
+    nowmatch("*ba*", "aabcaa");
+    wmatch("[,]", ",");
+    wmatch("[\\\\,]", ",");
+    wmatch("[\\\\,]", "\\");
+    wmatch("[,-.]", "-");
+    nowmatch("[,-.]", "+");
+    nowmatch("[,-.]", "-.]");
+    wmatch("[\\1-\\3]", "2");
+    wmatch("[\\1-\\3]", "3");
+    nowmatch("[\\1-\\3]", "4");
+    wmatch("[[-\\]]", "\\");
+    wmatch("[[-\\]]", "[");
+    wmatch("[[-\\]]", "]");
+    nowmatch("[[-\\]]", "-");
+    return 0;
+}
+
 int wildmatch_tests()
 {
     /* Additional wildmatch tests */
@@ -148,6 +205,14 @@ int wildmatch_tests()
     match("/test/*/a", "/test/a/bc/c/d/a");
     match("/test/**/a", "/test/a/bc/c/d/a");
     make_test("/test/**/a", "/test/a/bc/c/d/a", WM_PATHNAME, WM_NOMATCH);
+
+    wmatch("**", ".everything");
+    nowmatch("*", ".hidden");
+    nowmatch("**/*", "/a/b/.hidden");
+    wmatch("/foo/**/2/3/*", "/foo/a/b/c/2/3/visible");
+    nowmatch("/foo/**/2/3/*", "/foo/a/b/c/2/3/.hidden");
+
+    wmatch("a//a**/c*.ext", "a//ac/a//b/cat.ext");
     return 0;
 }
 
@@ -157,7 +222,7 @@ int main(int argc, char **argv)
     run(additional_tests());
     run(extended_tests());
     /* TODO character-class tests */
-    /* TODO malformed patterns */
+    run(additional_malformed_tests());
     /* TODO recursion and abort code */
     /* TODO case-sensitivity features */
     /* TODO additional tests */

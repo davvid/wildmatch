@@ -86,7 +86,7 @@ int wildmatch(const char *pattern, const char *string, int flags)
             wild = ISSET(flags, WM_WILDSTAR) && pattern[0] == '*';
             if (wild) {
                 /* Collapse multiple stars and slash-** patterns,
-                 * e.g. "** / ** / ** / **" (without spaces)
+                 * e.g. "** / *** / **** / **" (without spaces)
                  * is treated as a single ** wildstar.
                  */
                 while (c == '*') {
@@ -245,8 +245,9 @@ rangematch(const char *pattern, char test, int flags, char **newp)
                 c2 = tolower((unsigned char)c2);
             if (c <= test && test <= c2)
                 ok = 1;
-        } else if (c == test)
+        } else if (c == test) {
             ok = 1;
+        }
     } while ((c = *pattern++) != ']');
 
     *newp = (char *)pattern;
