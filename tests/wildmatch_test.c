@@ -142,6 +142,29 @@ int extended_tests()
     return 0;
 }
 
+int character_class_tests()
+{
+    wmatch("[[:alpha:]][[:digit:]][[:upper:]]", "a1B");
+    wnomatch("[[:digit:][:upper:][:space:]]", "a");
+    wmatch("[[:digit:][:upper:][:space:]]", "A");
+    wmatch("[[:digit:][:upper:][:space:]]", "1");
+    wnomatch("[[:digit:][:upper:][:spaci:]]", "1");
+    wmatch("[[:digit:][:upper:][:space:]]", " ");
+    wnomatch("[[:digit:][:upper:][:space:]]", ".");
+    wmatch("[[:digit:][:punct:][:space:]]", ".");
+    wmatch("[[:xdigit:]]", "5");
+    wmatch("[[:xdigit:]]", "f");
+    wmatch("[[:xdigit:]]", "D");
+    wmatch("[[:alnum:][:alpha:][:blank:][:cntrl:][:digit:][:graph:][:lower:][:print:][:punct:][:space:][:upper:][:xdigit:]]", "_");
+    wmatch("[[:alnum:][:alpha:][:blank:][:cntrl:][:digit:][:graph:][:lower:][:print:][:punct:][:space:][:upper:][:xdigit:]]", "_");
+    wmatch("[^[:alnum:][:alpha:][:blank:][:cntrl:][:digit:][:lower:][:space:][:upper:][:xdigit:]]", ".");
+    wmatch("[a-c[:digit:]x-z]", "5");
+    wmatch("[a-c[:digit:]x-z]", "b");
+    wmatch("[a-c[:digit:]x-z]", "y");
+    wnomatch("[a-c[:digit:]x-z]", "q");
+    return 0;
+}
+
 int additional_malformed_tests()
 {
     wmatch("[\\\\-^]", "]");
@@ -296,7 +319,9 @@ int main(int argc, char **argv)
     run(basic_tests());
     run(additional_tests());
     run(extended_tests());
-    /* TODO character-class tests */
+    /* TODO
+    run(character_class_tests());
+    */
     run(additional_malformed_tests());
     run(recursions_tests());
     run(case_sensitivity_tests());
