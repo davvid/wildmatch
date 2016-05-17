@@ -47,14 +47,11 @@
 #define WM_PERIOD 0x04 /* Period must be matched by period. */
 #define WM_LEADING_DIR 0x08 /* Ignore /<tail> after Imatch. */
 #define WM_CASEFOLD 0x10 /* Case insensitive search. */
-#define WM_PREFIX_DIRS 0x20 /* Directory prefixes of pattern match too. */
-#define WM_STAR 0x40 /* Double-asterisks ** matches slash too. */
+#define WM_PREFIX_DIRS 0x20 /* Unused */
+#define WM_WILDSTAR 0x40 /* Double-asterisks ** matches slash too. */
 
 #define WM_IGNORECASE WM_CASEFOLD
 #define WM_FILE_NAME WM_PATHNAME
-
-/* wildmatch path matching */
-#define WM_WILDPATH (WM_STAR | WM_PATHNAME | WM_PERIOD)
 
 int wildmatch(const char *string, const char *pattern, int flags);
 

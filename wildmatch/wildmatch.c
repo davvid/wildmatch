@@ -54,7 +54,15 @@ int wildmatch(const char *pattern, const char *string, int flags)
 {
     const char *stringstart;
     char *newp;
+    char *slash;
     char c, test;
+    int wild = 0;
+
+    /* WM_WILDSTAR implies WM_PATHNAME and WM_PERIOD. */
+    if (ISSET(flags, WM_WILDSTAR)) {
+        flags |= WM_PATHNAME;
+        flags |= WM_PERIOD;
+    }
 
     for (stringstart = string;;) {
         switch (c = *pattern++) {
@@ -75,27 +83,65 @@ int wildmatch(const char *pattern, const char *string, int flags)
             break;
         case '*':
             c = *pattern;
-            /* Collapse multiple stars. */
-            while (c == '*')
-                c = *++pattern;
+            wild = ISSET(flags, WM_WILDSTAR) && pattern[0] == '*';
+            if (wild) {
+                /* Collapse multiple stars and slash-** patterns,
+                 * e.g. "** / ** / ** / **" (without spaces)
+                 * is treated as a single ** wildstar.
+                 */
+                while (c == '*') {
+                    c = *++pattern;
+                }
+                while (c == '/' && pattern[0] == '*' && pattern[1] == '*') {
+                    c = *pattern;
+                    while (c == '*')
+                        c = *++pattern;
+                }
+            } else {
+                /* Collapse multiple stars. */
+                while (c == '*')
+                    c = *++pattern;
+            }
 
-            if (*string == '.' && ISSET(flags, WM_PERIOD) &&
+            if (!wild && *string == '.' && ISSET(flags, WM_PERIOD) &&
                 (string == stringstart ||
                 (ISSET(flags, WM_PATHNAME) && *(string - 1) == '/')))
                 return (WM_NOMATCH);
 
-            /* Optimize for pattern with * at end or before /. */
+            /* Optimize for pattern with * or ** at end or before /. */
             if (c == EOS) {
-                if (ISSET(flags, WM_PATHNAME))
+                if (wild) {
+                    return (0);
+                }
+                if (ISSET(flags, WM_PATHNAME)) {
                     return (ISSET(flags, WM_LEADING_DIR) ||
                         strchr(string, '/') == NULL ?
                         0 : WM_NOMATCH);
-                else
+                } else {
                     return (0);
-            } else if (c == '/' && ISSET(flags, WM_PATHNAME)) {
-                if ((string = strchr(string, '/')) == NULL)
-                    return (WM_NOMATCH);
-                break;
+                }
+
+            } else if (c == '/') {
+                if (wild) {
+                    slash = strchr(string, '/');
+                    if (!slash) {
+                        return WM_NOMATCH;
+                    }
+                    while (slash) {
+                        if (wildmatch(pattern+1, slash+1, flags) == 0) {
+                            return 0;
+                        }
+                        slash = strchr(slash+1, '/');
+                    }
+                } else {
+                    if (ISSET(flags, WM_PATHNAME)) {
+                        if ((string = strchr(string, '/')) == NULL) {
+                            return (WM_NOMATCH);
+                        }
+                    }
+                }
+            } else if (wild) {
+                return WM_NOMATCH;
             }
 
             /* General case, use recursion. */
