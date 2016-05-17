@@ -92,15 +92,17 @@ int wildmatch(const char *pattern, const char *string, int flags)
                 while (c == '*') {
                     c = *++pattern;
                 }
-                while (c == '/' && pattern[0] == '*' && pattern[1] == '*') {
-                    c = *pattern;
-                    while (c == '*')
+                while (c == '/' && pattern[1] == '*' && pattern[2] == '*') {
+                    c = *++pattern;
+                    while (c == '*') {
                         c = *++pattern;
+                    }
                 }
             } else {
                 /* Collapse multiple stars. */
-                while (c == '*')
+                while (c == '*') {
                     c = *++pattern;
+                }
             }
 
             if (!wild && *string == '.' && ISSET(flags, WM_PERIOD) &&

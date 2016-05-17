@@ -101,10 +101,9 @@ int main(int argc, char **argv)
     wmatch("foo/**", "foo/baz/bar");
     wmatch("foo/**/bar", "foo/baz/bar");
     wmatch("foo/**/**/bar", "foo/baz/buz/bar");
-#if 0 /* TODO */
-    wmatch("foo/**/**/bar", "foo/baz/bar");
-#endif
     wmatch("foo/**/bar", "foo/b/a/z/bar");
+    wmatch("foo/**/**/bar", "foo/baz/bar");
+    wmatch("foo/**/**/*****/**/*******/**/bar", "foo/baz/bar");
 #endif
 
     /* TODO character-class tests */
