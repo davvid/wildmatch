@@ -28,6 +28,10 @@
     make_test(pattern, string, WM_WILDSTAR, WM_NOMATCH); \
 }}
 
+#define imatch(pattern, string) {{ \
+    make_test(pattern, string, WM_CASEFOLD, WM_MATCH); \
+}}
+
 #define run(expr) {{ \
     if ((expr)) { \
         return 1; \
@@ -216,6 +220,47 @@ int recursions_tests()
     return 0;
 }
 
+int case_sensitivity_tests()
+{
+    wnomatch("[A-Z]", "a");
+    wmatch("[A-Z]", "A");
+    wnomatch("[a-z]", "A");
+    wmatch("[a-z]", "a");
+    wnomatch("[[:upper:]]", "a");
+    /* TODO
+    wmatch("[[:upper:]]", "A");
+    */
+    wnomatch("[[:lower:]]", "A");
+    /* TODO
+    wmatch("[[:lower:]]", "a");
+    */
+    wnomatch("[B-Za]", "A");
+    wmatch("[B-Za]", "a");
+    wnomatch("[B-a]", "A");
+    wmatch("[B-a]", "a");
+    wnomatch("[Z-y]", "z");
+    wmatch("[Z-y]", "Z");
+
+    imatch("[A-Z]", "a");
+    imatch("[A-Z]", "A");
+    imatch("[a-z]", "A");
+    imatch("[a-z]", "a");
+    /* TODO
+    imatch("[[:upper:]]", "a");
+    imatch("[[:upper:]]", "A");
+    imatch("[[:lower:]]", "A");
+    imatch("[[:lower:]]", "a");
+    */
+    imatch("[B-Za]", "A");
+    imatch("[B-Za]", "a");
+    imatch("[B-a]", "A");
+    imatch("[B-a]", "a");
+    imatch("[Z-y]", "z");
+    imatch("[Z-y]", "Z");
+
+    return 0;
+}
+
 int wildmatch_tests()
 {
     match("/test/*", "/test/path");
@@ -244,7 +289,7 @@ int main(int argc, char **argv)
     /* TODO character-class tests */
     run(additional_malformed_tests());
     run(recursions_tests());
-    /* TODO case-sensitivity features */
+    run(case_sensitivity_tests());
     /* TODO additional tests */
     run(wildmatch_tests());
 

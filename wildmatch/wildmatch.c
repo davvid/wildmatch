@@ -204,6 +204,7 @@ rangematch(const char *pattern, char test, int flags, char **newp)
 {
     int negate, ok;
     char c, c2;
+    char tmp;
 
     /*
      * A bracket expression starting with an unquoted circumflex
@@ -232,8 +233,6 @@ rangematch(const char *pattern, char test, int flags, char **newp)
             return (RANGE_ERROR);
         if (c == '/' && ISSET(flags, WM_PATHNAME))
             return (RANGE_NOMATCH);
-        if (ISSET(flags, WM_CASEFOLD))
-            c = tolower((unsigned char)c);
         if (*pattern == '-'
             && (c2 = *(pattern+1)) != EOS && c2 != ']') {
             pattern += 2;
@@ -241,10 +240,19 @@ rangematch(const char *pattern, char test, int flags, char **newp)
                 c2 = *pattern++;
             if (c2 == EOS)
                 return (RANGE_ERROR);
-            if (ISSET(flags, WM_CASEFOLD))
+
+            if (ISSET(flags, WM_CASEFOLD)) {
+                c = tolower((unsigned char)c);
                 c2 = tolower((unsigned char)c2);
-            if (c <= test && test <= c2)
+            }
+            if (c > c2) {
+                tmp = c2;
+                c2 = c;
+                c = tmp;
+            }
+            if (c <= test && test <= c2) {
                 ok = 1;
+            }
         } else if (c == test) {
             ok = 1;
         }
