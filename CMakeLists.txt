@@ -14,5 +14,7 @@ set(PROJECT_CFLAGS -std=c89 -Wall -Wextra -Wno-unused-parameter)
 set(PROJECT_CXXFLAGS -std=c++11 -Wall -Wextra -Wno-unused-parameter)
 include_directories(${CMAKE_SOURCE_DIR})
 
+install(FILES README.md DESTINATION share/doc/${PROJECT_NAME})
+
 add_subdirectory(wildmatch)
 add_subdirectory(tests)
