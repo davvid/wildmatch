@@ -53,6 +53,20 @@
 #define WM_IGNORECASE WM_CASEFOLD
 #define WM_FILE_NAME WM_PATHNAME
 
+/*
+ * wildmatch is an extension of function fnmatch(3) as specified in
+ * POSIX 1003.2-1992, section B.6.
+ *
+ * Compares a filename or pathname to a pattern.
+ *
+ * wildmatch is fnmatch-compatible by default.  Its new features are enabled
+ * by passing WM_WILDSTAR in flags, which makes ** match across path
+ * boundaries.  WM_WILDSTAR implies WM_PATHNAME and WM_PERIOD.
+ *
+ * The WM_ flags are the named the same as their FNM_ fnmatch counterparts
+ * and are compatible in behavior to fnmatch(3) in the absence of WM_WILDSTAR.
+ */
+
 int wildmatch(const char *string, const char *pattern, int flags);
 
 #endif

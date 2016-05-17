@@ -101,7 +101,6 @@ int additional_tests()
 
 int extended_tests()
 {
-    /* TODO extended slash-matching features */
     nowmatch("foo*bar", "foo/baz/bar");
     nowmatch("foo**bar", "foo/baz/bar");
     nowmatch("foo**bar", "foobazbar");
