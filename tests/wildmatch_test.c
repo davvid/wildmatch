@@ -24,7 +24,7 @@
     make_test(pattern, string, WM_WILDSTAR, WM_MATCH); \
 }}
 
-#define nowmatch(pattern, string) {{ \
+#define wnomatch(pattern, string) {{ \
     make_test(pattern, string, WM_WILDSTAR, WM_NOMATCH); \
 }}
 
@@ -101,9 +101,9 @@ int additional_tests()
 
 int extended_tests()
 {
-    nowmatch("foo*bar", "foo/baz/bar");
-    nowmatch("foo**bar", "foo/baz/bar");
-    nowmatch("foo**bar", "foobazbar");
+    wnomatch("foo*bar", "foo/baz/bar");
+    wnomatch("foo**bar", "foo/baz/bar");
+    wnomatch("foo**bar", "foobazbar");
     wmatch("foo/**", "foo/baz/bar");
     wmatch("foo/**/bar", "foo/baz/bar");
     wmatch("foo/**/**/bar", "foo/baz/buz/bar");
@@ -116,24 +116,24 @@ int extended_tests()
     wmatch("**", "foo/bar");
     wmatch("**", "");
     wmatch("foo/**/**/bar", "foo/bar");
-    nowmatch("foo?bar", "foo/bar");
-    nowmatch("foo[/]bar", "foo/bar");
-    nowmatch("f[^eiu][^eiu][^eiu][^eiu][^eiu]r", "foo/bar");
+    wnomatch("foo?bar", "foo/bar");
+    wnomatch("foo[/]bar", "foo/bar");
+    wnomatch("f[^eiu][^eiu][^eiu][^eiu][^eiu]r", "foo/bar");
     wmatch("f[^eiu][^eiu][^eiu][^eiu][^eiu]r", "foo-bar");
     wmatch("**/foo", "/foo");
-    nowmatch("**/foo", "foo"); /* Differs from the js tests */
+    wnomatch("**/foo", "foo"); /* Differs from the js tests */
     wmatch("**/foo", "XXX/foo");
     wmatch("**/foo", "bar/baz/foo");
-    nowmatch("*/foo", "bar/baz/foo");
-    nowmatch("**/bar*", "foo/bar/baz");
+    wnomatch("*/foo", "bar/baz/foo");
+    wnomatch("**/bar*", "foo/bar/baz");
     wmatch("**/bar/*", "deep/foo/bar/baz");
-    nowmatch("**/bar/*", "deep/foo/bar/baz/");
+    wnomatch("**/bar/*", "deep/foo/bar/baz/");
     wmatch("**/bar/**", "deep/foo/bar/baz/");
-    nowmatch("**/bar/*", "deep/foo/bar");
+    wnomatch("**/bar/*", "deep/foo/bar");
     wmatch("**/bar/**", "deep/foo/bar/");
     wmatch("**/bar**", "foo/bar/baz");  /* Differs from the js tests */
     wmatch("*/bar/**", "foo/bar/baz/x");
-    nowmatch("*/bar/**", "deep/foo/bar/baz/x");
+    wnomatch("*/bar/**", "deep/foo/bar/baz/x");
     wmatch("**/bar/*/*", "deep/foo/bar/baz/x");
     return 0;
 }
@@ -141,63 +141,64 @@ int extended_tests()
 int additional_malformed_tests()
 {
     wmatch("[\\\\-^]", "]");
-    nowmatch("[\\\\-^]", "[");
+    wnomatch("[\\\\-^]", "[");
     wmatch("[\\-_]", "-");
     wmatch("[\\]]", "]");
-    nowmatch("[\\]]", "\\]");
-    nowmatch("[\\]]", "\\");
-    nowmatch("a[]b", "ab");
+    wnomatch("[\\]]", "\\]");
+    wnomatch("[\\]]", "\\");
+    wnomatch("a[]b", "ab");
     /* TODO
-    nowmatch("a[]b", "a[]b");
-    nowmatch("ab[", "ab[");
+    wnomatch("a[]b", "a[]b");
+    wnomatch("ab[", "ab[");
     */
-    nowmatch("[!", "ab");
-    nowmatch("[-", "ab");
+    wnomatch("[!", "ab");
+    wnomatch("[-", "ab");
     wmatch("[-]", "-");
-    nowmatch("[a-", "-");
-    nowmatch("[!a-", "-");
+    wnomatch("[a-", "-");
+    wnomatch("[!a-", "-");
     wmatch("[--A]", "-");
     wmatch("[--A]", "5");
     wmatch("[ --]", " ");
     wmatch("[ --]", "$");
     wmatch("[ --]", "-");
-    nowmatch("[ --]", "0");
+    wnomatch("[ --]", "0");
     wmatch("[---]", "-");
     wmatch("[------]", "-");
-    nowmatch("[a-e-n]", "j");
+    wnomatch("[a-e-n]", "j");
     wmatch("[a-e-n]", "-");
     wmatch("[!------]", "a");
-    nowmatch("[]-a]", "[");
+    wnomatch("[]-a]", "[");
     wmatch("[]-a]", "^");
-    nowmatch("[!]-a]", "^");
+    wnomatch("[!]-a]", "^");
     wmatch("[!]-a]", "[");
     wmatch("[a^bc]", "^");
     wmatch("[a-]b]", "-b]");
-    nowmatch("[\\]", "\\");
+    wnomatch("[\\]", "\\");
     wmatch("[\\\\]", "\\");
-    nowmatch("[!\\\\]", "\\");
+    wnomatch("[!\\\\]", "\\");
     wmatch("[A-\\\\]", "G");
-    nowmatch("b*a", "aaabbb");
-    nowmatch("*ba*", "aabcaa");
+    wnomatch("b*a", "aaabbb");
+    wnomatch("*ba*", "aabcaa");
     wmatch("[,]", ",");
     wmatch("[\\\\,]", ",");
     wmatch("[\\\\,]", "\\");
     wmatch("[,-.]", "-");
-    nowmatch("[,-.]", "+");
-    nowmatch("[,-.]", "-.]");
+    wnomatch("[,-.]", "+");
+    wnomatch("[,-.]", "-.]");
     wmatch("[\\1-\\3]", "2");
     wmatch("[\\1-\\3]", "3");
-    nowmatch("[\\1-\\3]", "4");
+    wnomatch("[\\1-\\3]", "4");
     wmatch("[[-\\]]", "\\");
     wmatch("[[-\\]]", "[");
     wmatch("[[-\\]]", "]");
-    nowmatch("[[-\\]]", "-");
+    wnomatch("[[-\\]]", "-");
+    return 0;
+}
     return 0;
 }
 
 int wildmatch_tests()
 {
-    /* Additional wildmatch tests */
     match("/test/*", "/test/path");
     make_test("/test/*", "/test/path", WM_PATHNAME, WM_MATCH);
     match("/test/**/a", "/test/a/bc/c/d/a");
@@ -207,10 +208,10 @@ int wildmatch_tests()
     make_test("/test/**/a", "/test/a/bc/c/d/a", WM_PATHNAME, WM_NOMATCH);
 
     wmatch("**", ".everything");
-    nowmatch("*", ".hidden");
-    nowmatch("**/*", "/a/b/.hidden");
+    wnomatch("*", ".hidden");
+    wnomatch("**/*", "/a/b/.hidden");
     wmatch("/foo/**/2/3/*", "/foo/a/b/c/2/3/visible");
-    nowmatch("/foo/**/2/3/*", "/foo/a/b/c/2/3/.hidden");
+    wnomatch("/foo/**/2/3/*", "/foo/a/b/c/2/3/.hidden");
 
     wmatch("a//a**/c*.ext", "a//ac/a//b/cat.ext");
     return 0;
