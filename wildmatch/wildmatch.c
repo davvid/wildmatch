@@ -48,13 +48,13 @@
 
 #define ISSET(flags, opts) ((flags) & (opts))
 
-static int rangematch(const char *, char, int, char **);
+static int rangematch(const char *, char, int, const char **);
 
 int wildmatch(const char *pattern, const char *string, int flags)
 {
     const char *stringstart;
-    char *newp;
-    char *slash;
+    const char *newp;
+    const char *slash;
     char c, test;
     int wild = 0;
 
@@ -123,7 +123,7 @@ int wildmatch(const char *pattern, const char *string, int flags)
                 }
             } else if (c == '/') {
                 if (wild) {
-                    slash = (char *)strchr(stringstart, '/');
+                    slash = strchr(stringstart, '/');
                     if (!slash) {
                         return WM_NOMATCH;
                     }
@@ -200,7 +200,7 @@ int wildmatch(const char *pattern, const char *string, int flags)
 }
 
 static int
-rangematch(const char *pattern, char test, int flags, char **newp)
+rangematch(const char *pattern, char test, int flags, const char **newp)
 {
     int negate, ok;
     char c, c2;
@@ -258,6 +258,6 @@ rangematch(const char *pattern, char test, int flags, char **newp)
         }
     } while ((c = *pattern++) != ']');
 
-    *newp = (char *)pattern;
+    *newp = (const char *)pattern;
     return (ok == negate ? RANGE_NOMATCH : RANGE_MATCH);
 }
