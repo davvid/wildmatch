@@ -14,6 +14,8 @@ prefix ?= $(CURDIR)/$(platformdir)
 ifdef V
     VERBOSE=1
     export VERBOSE
+    CTEST_OUTPUT_ON_FAILURE=1
+    export CTEST_OUTPUT_ON_FAILURE
 endif
 CMAKE_FLAGS ?= -DCMAKE_INSTALL_PREFIX=$(prefix)
 CMAKE_FILES = CMakeLists.txt
