@@ -15,6 +15,10 @@ void die(const char *msg)
 int main(int argc, char **argv)
 {
     int i;
+    if (argc < 4) {
+        die("usage: test-wildmatch <mode> <string> <pattern>\n"
+            "modes: wildmatch, iwildmatch, pathmatch");
+    }
     for (i = 2; i < argc; i++) {
         if (argv[i][0] == '/')
             die("Forward slash is not allowed at the beginning of the\n"
