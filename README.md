@@ -2,6 +2,8 @@ wildmatch
 =========
 Wildmatch is a BSD-licensed library for git/rsync-style pattern matching
 
+[![wildmatch build status](https://api.travis-ci.org/davvid/wildmatch.svg?branch=master)](https://travis-ci.org/davvid/wildmatch)
+
 SYNOPSIS
 --------
     /* C API */
