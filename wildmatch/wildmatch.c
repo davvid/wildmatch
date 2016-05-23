@@ -53,7 +53,6 @@ extern "C" {
 #define check_flag(flags, opts) ((flags) & (opts))
 
 extern int isblank(int);
-static int casefold_upper(int c);
 static int rangematch(const char *, char, int, const char **);
 
 int wildmatch(const char *pattern, const char *string, int flags)
@@ -312,11 +311,6 @@ rangematch(const char *pattern, char test, int flags, const char **newp)
 
     *newp = (const char *)pattern;
     return (ok == negate ? RANGE_NOMATCH : RANGE_MATCH);
-}
-
-static int casefold_upper(int c)
-{
-    return isupper(toupper(c));
 }
 
 #ifdef __cplusplus
