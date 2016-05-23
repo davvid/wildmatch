@@ -9,6 +9,7 @@ before_install:
 
 install:
   - make -s V=1
+  - make -s V=1 install
 
 script:
   - make -s V=1 test
