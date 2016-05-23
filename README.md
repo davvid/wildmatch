@@ -1,6 +1,6 @@
 wildmatch
 =========
-Match filename or path patterns with an extended syntax
+Wildmatch is a BSD-licensed library for git/rsync-style pattern matching
 
 SYNOPSIS
 --------
@@ -20,47 +20,51 @@ SYNOPSIS
 
 DESCRIPTION
 -----------
-wildmatch is an extended pattern-matching library based on the fnmatch
-implementation from OpenBSD.
-
 wildmatch is an extension of function fnmatch(3) as specified in
 POSIX 1003.2-1992, section B.6.
 
-The wildmatch C API is fnmatch-compatible by default.  Its new features are
-enabled by passing `WM_WILDSTAR` in flags, which makes `**` match across path
-boundaries.  `WM_WILDSTAR` implies `WM_PATHNAME`.
+The wildmatch extension allows `**` to match `/` when `WM_PATHNAME` is
+present. This gives the practical benefit of being able to match all
+subdirectories of a path by using `**` and reserves the use of the
+single-asterisk `*` character for matching within path components.
 
-The `WM_` flags are the named the same as their `FNM_` fnmatch counterparts
-and are compatible in behavior to fnmatch(3) in the absence of `WM_WILDSTAR`.
+The C API is fnmatch-compatible by default.
+The wildmatch extension is enabled by specifying `WM_WILDSTAR` in `flags`.
+Specifying `WM_WILDSTAR` implies `WM_PATHNAME`.
 
 The flags argument defaults to `wild::WILDSTAR` in the C++ API.
-Pass `wild::FNMATCH` as the third `flags` argument if you want to enable the
-`fnmatch(3)`-compatible behavior.
+Calling `wild::match(...)` with only two arguments will use the extended
+syntax by default.
+
+The `WM_` flags are named the same as their `FNM_` fnmatch counterparts
+and are compatible in behavior to fnmatch(3) in the absence of `WM_WILDSTAR`.
 
 RETURN VALUE
 ------------
 The C API returns `WM_MATCH` when string matches the pattern, and `WM_NOMATCH`
-when the pattern does not match.
+when the pattern does not match.  These values are #defines for 0 and 1,
+respectively.
 
-The C++ API returns a boolean `true` and `false`.
+The C++ API returns a boolean `true` (match) or `false` (no match).
 
 HISTORY
 -------
-Wildmatch is an independent, BSD-licensed implementation of the wildmatch spec,
-and was developed based on Git's test cases only.
+Wildmatch's extended syntax was developed by targetting the
+[wildmatch test cases](https://github.com/git/git/blob/master/t/t3070-wildmatch.sh)
+from [Git](https://git-scm.com).
 
+The "wildmatch" name is from an internal library in
+[rsync](https://rsync.samba.org/) that is used for fnmatch-style matching.
+Git's wildmatch implementation originally came from rsync.
+The original wildmatch code was added to rsync by Wayne Davison in 2003.
 
-The name "wildmatch" came from the name of an internal library in the Git
-project that is used for extended fnmatch-like pattern matching.
-Git's wildmatch code originally came from rsync.
+The test suite for wildmatch came from Git but the library itself does not
+share any lineage with either Git or rsync's wildmatch implementation.
 
-The spec for wildmatch, and its test suite, came from the Git project, but the
-wildmatch implementation here does not share any code or lineage with Git or
-rsync's wildmatch implementation.
-
-Wildmatch is based on OpenBSD's fnmatch implementation.  It was extended to
-support wildmatch semantics in a backwards-compatible fashion by introducing
-an additional `WM_WILDSTAR` flag to enable the new behavior.
+Wildmatch was originally based on the fnmatch implementation from OpenBSD.
+The OpenBSD fnmatch implementation was extended in a backwards-compatible
+fashion by introducing a new `WM_WILDSTAR` flag for the purpose of enabling
+the extended syntax.
 
 BUILD
 -----
@@ -71,9 +75,8 @@ TEST
     make test
 
 The test suite is borrowed from the Git project and can be found in
-`tests/t3070-wildmatch.sh`.  You can run the test script directly for closer
-debugging.  We use [sharness](https://github.com/mlafeldt/sharness) to run
-the tests.
+`tests/t3070-wildmatch.sh`.  Run the test script directly for debugging.
+[sharness](https://github.com/mlafeldt/sharness) is used to run the tests.
 
 Passing the `-v` flag to the test script increases its verbosity, and passing
 the `--immediate` flag tells the test suite to stop on the first failure.
@@ -100,7 +103,7 @@ The install tree looks like the following:
 The C++ API is provided by wildmatch.hpp and libwildmatch-cxx.so.
 The C API is provided by wildmatch.h and libwildmatch.so.
 
-The C++ API library is a super-set of the C API.  If you link against the C++
+The C++ API library is a superset of the C API.  If you link against the C++
 library then you can also use the C API functions if desired; there is no need
 to link against both libraries.
 
@@ -114,8 +117,10 @@ SEE ALSO
 --------
 fnmatch(3)
 
+[rsync](https://rsync.samba.org)
+
 [Git](https://github.com/git/git)
 
 LICENSE
 -------
-[BSD License](LICENSE)
+[BSD](LICENSE)
