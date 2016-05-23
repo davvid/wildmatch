@@ -52,12 +52,7 @@ extern "C" {
 
 #define check_flag(flags, opts) ((flags) & (opts))
 
-#define pattern_startswith(string, pattern) {{ \
-    !strncmp(string, pattern ":]", sizeof(pattern ":]")); \
-}}
-
 extern int isblank(int);
-
 static int casefold_upper(int c);
 static int rangematch(const char *, char, int, const char **);
 
@@ -282,36 +277,32 @@ rangematch(const char *pattern, char test, int flags, const char **newp)
             #define match_pattern(name) \
                 !strncmp(pattern+1, name, sizeof(name)-1)
 
-            #define check_pattern(name, predicate) {{ \
-                if (match_pattern(name)) { \
-                    if (predicate(test)) { \
+            #define check_pattern(name, predicate, value) {{ \
+                if (match_pattern(name ":]")) { \
+                    if (predicate(value)) { \
                         ok = 1; \
                     } \
-                    pattern += sizeof(name); \
+                    pattern += sizeof(name ":]"); \
                     continue; \
                 } \
             }}
 
-            if (!strncmp(pattern+1, ":]", 2)) {
+            if (match_pattern(":]")) {
                 continue;
             }
-
-            check_pattern("alnum:]", isalnum);
-            check_pattern("alpha:]", isalpha);
-            check_pattern("blank:]", isblank);
-            check_pattern("cntrl:]", iscntrl);
-            check_pattern("digit:]", isdigit);
-            check_pattern("graph:]", isgraph);
-            check_pattern("lower:]", islower);
-            check_pattern("print:]", isprint);
-            check_pattern("punct:]", ispunct);
-            check_pattern("space:]", isspace);
-            check_pattern("xdigit:]", isxdigit);
-            if (check_flag(flags, WM_CASEFOLD)) {
-                check_pattern("upper:]", casefold_upper);
-            } else {
-                check_pattern("upper:]", isupper);
-            }
+            check_pattern("alnum", isalnum, test);
+            check_pattern("alpha", isalpha, test);
+            check_pattern("blank", isblank, test);
+            check_pattern("cntrl", iscntrl, test);
+            check_pattern("digit", isdigit, test);
+            check_pattern("graph", isgraph, test);
+            check_pattern("lower", islower, test);
+            check_pattern("print", isprint, test);
+            check_pattern("punct", ispunct, test);
+            check_pattern("space", isspace, test);
+            check_pattern("xdigit", isxdigit, test);
+            c2 = check_flag(flags, WM_CASEFOLD) ? toupper(test) : test;
+            check_pattern("upper", isupper, c2);
             /* fallthrough means match like a normal character */
         }
         if (c == test) {
