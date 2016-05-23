@@ -39,6 +39,10 @@
 
 #include "wildmatch.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #undef  EOS
 #define EOS '\0'
 
@@ -343,3 +347,6 @@ rangematch(const char *pattern, char test, int flags, const char **newp)
     *newp = (const char *)pattern;
     return (ok == negate ? RANGE_NOMATCH : RANGE_MATCH);
 }
+#ifdef __cplusplus
+}
+#endif

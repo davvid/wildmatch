@@ -39,6 +39,10 @@
 #ifndef _WILDMATCH_H_
 #define _WILDMATCH_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define WM_MATCH 0 /* Match. */
 #define WM_NOMATCH 1 /* Match failed. */
 
@@ -69,4 +73,8 @@
 
 int wildmatch(const char *string, const char *pattern, int flags);
 
+
+#ifdef __cplusplus
+}
+#endif
 #endif
