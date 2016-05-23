@@ -122,7 +122,7 @@ int wildmatch(const char *pattern, const char *string, int flags)
 
             /* Optimize for pattern with * or ** at end or before /. */
             if (c == EOS) {
-                if (wild) {
+                if (wild && pattern[-3] == '/') {
                     return (0);
                 }
                 if (check_flag(flags, WM_PATHNAME)) {
