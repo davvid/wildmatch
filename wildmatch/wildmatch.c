@@ -94,7 +94,7 @@ int wildmatch(const char *pattern, const char *string, int flags)
             break;
         case '*':
             c = *pattern;
-            wild = check_flag(flags, WM_WILDSTAR) && pattern[0] == '*';
+            wild = check_flag(flags, WM_WILDSTAR) && c == '*';
             if (wild) {
                 prev = pattern[-2];
                 /* Collapse multiple stars and slash-** patterns,
@@ -110,6 +110,12 @@ int wildmatch(const char *pattern, const char *string, int flags)
                     c = *++pattern;
                     while (c == '*') {
                         c = *++pattern;
+                    }
+                }
+
+                if (c == '/') {
+                    if (wildmatch(pattern+1, string, flags) == WM_MATCH) {
+                        return WM_MATCH;
                     }
                 }
             } else {
