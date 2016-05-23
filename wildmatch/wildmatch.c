@@ -52,8 +52,13 @@ extern "C" {
 
 #define check_flag(flags, opts) ((flags) & (opts))
 
+#define pattern_startswith(string, pattern) {{ \
+    !strncmp(string, pattern ":]", sizeof(pattern ":]")); \
+}}
+
 extern int isblank(int);
 
+static int casefold_upper(int c);
 static int rangematch(const char *, char, int, const char **);
 
 int wildmatch(const char *pattern, const char *string, int flags)
@@ -67,9 +72,6 @@ int wildmatch(const char *pattern, const char *string, int flags)
     /* WM_WILDSTAR implies WM_PATHNAME and WM_PERIOD. */
     if (check_flag(flags, WM_WILDSTAR)) {
         flags |= WM_PATHNAME;
-        /*
-        flags |= WM_PERIOD;
-        */
     }
 
     for (stringstart = string;;) {
@@ -174,6 +176,7 @@ int wildmatch(const char *pattern, const char *string, int flags)
             switch (rangematch(pattern, *string, flags, &newp)) {
             case RANGE_ERROR:
                 /* not a good range, treat as normal text */
+                ++string;
                 goto normal;
             case RANGE_MATCH:
                 pattern = newp;
@@ -213,8 +216,6 @@ rangematch(const char *pattern, char test, int flags, const char **newp)
     int negate, ok;
     char c, c2;
     char tmp;
-    const char *endmarker;
-    size_t len;
 
     /*
      * A bracket expression starting with an unquoted circumflex
@@ -265,80 +266,43 @@ rangematch(const char *pattern, char test, int flags, const char **newp)
                 ok = 1;
             }
         }
-        if (c == '[' && *pattern == ':'
-            && (c2 = *(pattern+1)) != EOS) {
 
-            ++pattern;
-            endmarker = strchr(pattern, ']');
-            len = (endmarker && (endmarker > pattern + 1))
-                ? (endmarker - pattern - 1) : 0;
+        if (c == '[' && *pattern == ':' && *(pattern+1) != EOS) {
 
-            if (len > 0 && pattern[len] == ':') {
+            #define match_pattern(name) \
+                !strncmp(pattern+1, name, sizeof(name)-1)
 
-                if (!strncmp(pattern, "alnum", len)) {
-                    if (isalnum(test)) {
-                        ok = 1;
-                    }
-                } else if (!strncmp(pattern, "alpha", len)) {
-                    if (isalpha(test)) {
-                        ok = 1;
-                    }
-                } else if (!strncmp(pattern, "blank", len)) {
-                    if (isblank(test)) {
-                        ok = 1;
-                    }
-                } else if (!strncmp(pattern, "cntrl", len)) {
-                    if (iscntrl(test)) {
-                        ok = 1;
-                    }
-                } else if (!strncmp(pattern, "digit", len)) {
-                    if (isdigit(test)) {
-                        ok = 1;
-                    }
-                } else if (!strncmp(pattern, "graph", len)) {
-                    if (isgraph(test)) {
-                        ok = 1;
-                    }
-                } else if (!strncmp(pattern, "lower", len)) {
-                    if (islower(test)) {
-                        ok = 1;
-                    }
-                } else if (!strncmp(pattern, "print", len)) {
-                    if (isprint(test)) {
-                        ok = 1;
-                    }
-                } else if (!strncmp(pattern, "punct", len)) {
-                    if (ispunct(test)) {
-                        ok = 1;
-                    }
-                } else if (!strncmp(pattern, "space", len)) {
-                    if (isspace(test)) {
-                        ok = 1;
-                    }
-                } else if (!strncmp(pattern, "upper", len)) {
-                    if (ISSET(flags, WM_CASEFOLD)) {
-                        test = toupper((unsigned char)test);
-                    }
-                    if (isupper(test)) {
-                        ok = 1;
-                    }
-                } else if (!strncmp(pattern, "xdigit", len)) {
-                    if (isxdigit(test)) {
-                        ok = 1;
-                    }
-                } else {
-                    --pattern;
-                    ok = 0;
-                    continue;
-                }
-                /* Move past the character-class name and :] end-marker */
-                pattern = endmarker + 1;
+            #define check_pattern(name, predicate) {{ \
+                if (match_pattern(name)) { \
+                    if (predicate(test)) { \
+                        ok = 1; \
+                    } \
+                    pattern += sizeof(name); \
+                    continue; \
+                } \
+            }}
 
-            } else {
-                /* Regular pattern match */
-                --pattern;
-                c = '[';
+            if (!strncmp(pattern+1, ":]", 2)) {
+                continue;
             }
+
+            check_pattern("alnum:]", isalnum);
+            check_pattern("alpha:]", isalpha);
+            check_pattern("blank:]", isblank);
+            check_pattern("cntrl:]", iscntrl);
+            check_pattern("digit:]", isdigit);
+            check_pattern("graph:]", isgraph);
+            check_pattern("lower:]", islower);
+            check_pattern("print:]", isprint);
+            check_pattern("punct:]", ispunct);
+            check_pattern("space:]", isspace);
+            check_pattern("xdigit:]", isxdigit);
+            if (check_flag(flags, WM_CASEFOLD)) {
+                check_pattern("upper:]", casefold_upper);
+            } else {
+                check_pattern("upper:]", isupper);
+            }
+            /* fallthrough means match like a normal character */
         }
         if (c == test) {
             ok = 1;
@@ -348,6 +312,12 @@ rangematch(const char *pattern, char test, int flags, const char **newp)
     *newp = (const char *)pattern;
     return (ok == negate ? RANGE_NOMATCH : RANGE_MATCH);
 }
+
+static int casefold_upper(int c)
+{
+    return isupper(toupper(c));
+}
+
 #ifdef __cplusplus
 }
 #endif
