@@ -50,7 +50,7 @@ extern "C" {
 #define RANGE_NOMATCH 0
 #define RANGE_ERROR (-1)
 
-#define ISSET(flags, opts) ((flags) & (opts))
+#define check_flag(flags, opts) ((flags) & (opts))
 
 extern int isblank(int);
 
@@ -65,7 +65,7 @@ int wildmatch(const char *pattern, const char *string, int flags)
     int wild = 0;
 
     /* WM_WILDSTAR implies WM_PATHNAME and WM_PERIOD. */
-    if (ISSET(flags, WM_WILDSTAR)) {
+    if (check_flag(flags, WM_WILDSTAR)) {
         flags |= WM_PATHNAME;
         /*
         flags |= WM_PERIOD;
@@ -75,23 +75,23 @@ int wildmatch(const char *pattern, const char *string, int flags)
     for (stringstart = string;;) {
         switch (c = *pattern++) {
         case EOS:
-            if (ISSET(flags, WM_LEADING_DIR) && *string == '/')
+            if (check_flag(flags, WM_LEADING_DIR) && *string == '/')
                 return (0);
             return (*string == EOS ? 0 : WM_NOMATCH);
         case '?':
             if (*string == EOS)
                 return (WM_NOMATCH);
-            if (*string == '/' && ISSET(flags, WM_PATHNAME))
+            if (*string == '/' && check_flag(flags, WM_PATHNAME))
                 return (WM_NOMATCH);
-            if (*string == '.' && ISSET(flags, WM_PERIOD) &&
+            if (*string == '.' && check_flag(flags, WM_PERIOD) &&
                 (string == stringstart ||
-                (ISSET(flags, WM_PATHNAME) && *(string - 1) == '/')))
+                (check_flag(flags, WM_PATHNAME) && *(string - 1) == '/')))
                 return (WM_NOMATCH);
             ++string;
             break;
         case '*':
             c = *pattern;
-            wild = ISSET(flags, WM_WILDSTAR) && pattern[0] == '*';
+            wild = check_flag(flags, WM_WILDSTAR) && pattern[0] == '*';
             if (wild) {
                 /* Collapse multiple stars and slash-** patterns,
                  * e.g. "** / *** / **** / **" (without spaces)
@@ -113,9 +113,9 @@ int wildmatch(const char *pattern, const char *string, int flags)
                 }
             }
 
-            if (!wild && *string == '.' && ISSET(flags, WM_PERIOD) &&
+            if (!wild && *string == '.' && check_flag(flags, WM_PERIOD) &&
                 (string == stringstart ||
-                (ISSET(flags, WM_PATHNAME) && *(string - 1) == '/')))
+                (check_flag(flags, WM_PATHNAME) && *(string - 1) == '/')))
                 return (WM_NOMATCH);
 
             /* Optimize for pattern with * or ** at end or before /. */
@@ -123,8 +123,8 @@ int wildmatch(const char *pattern, const char *string, int flags)
                 if (wild) {
                     return (0);
                 }
-                if (ISSET(flags, WM_PATHNAME)) {
-                    return (ISSET(flags, WM_LEADING_DIR) ||
+                if (check_flag(flags, WM_PATHNAME)) {
+                    return (check_flag(flags, WM_LEADING_DIR) ||
                         strchr(string, '/') == NULL ?  0 : WM_NOMATCH);
                 } else {
                     return (0);
@@ -142,7 +142,7 @@ int wildmatch(const char *pattern, const char *string, int flags)
                         slash = strchr(slash+1, '/');
                     }
                 } else {
-                    if (ISSET(flags, WM_PATHNAME)) {
+                    if (check_flag(flags, WM_PATHNAME)) {
                         if ((string = strchr(string, '/')) == NULL) {
                             return (WM_NOMATCH);
                         }
@@ -156,7 +156,7 @@ int wildmatch(const char *pattern, const char *string, int flags)
             while ((test = *string) != EOS) {
                 if (!wildmatch(pattern, string, flags & ~WM_PERIOD))
                     return (0);
-                if (test == '/' && ISSET(flags, WM_PATHNAME))
+                if (test == '/' && check_flag(flags, WM_PATHNAME))
                     break;
                 ++string;
             }
@@ -164,11 +164,11 @@ int wildmatch(const char *pattern, const char *string, int flags)
         case '[':
             if (*string == EOS)
                 return (WM_NOMATCH);
-            if (*string == '/' && ISSET(flags, WM_PATHNAME))
+            if (*string == '/' && check_flag(flags, WM_PATHNAME))
                 return (WM_NOMATCH);
-            if (*string == '.' && ISSET(flags, WM_PERIOD) &&
+            if (*string == '.' && check_flag(flags, WM_PERIOD) &&
                 (string == stringstart ||
-                (ISSET(flags, WM_PATHNAME) && *(string - 1) == '/')))
+                (check_flag(flags, WM_PATHNAME) && *(string - 1) == '/')))
                 return (WM_NOMATCH);
 
             switch (rangematch(pattern, *string, flags, &newp)) {
@@ -184,7 +184,7 @@ int wildmatch(const char *pattern, const char *string, int flags)
             ++string;
             break;
         case '\\':
-            if (!ISSET(flags, WM_NOESCAPE)) {
+            if (!check_flag(flags, WM_NOESCAPE)) {
                 if ((c = *pattern++) == EOS) {
                     c = '\\';
                     --pattern;
@@ -196,7 +196,7 @@ int wildmatch(const char *pattern, const char *string, int flags)
             /* FALLTHROUGH */
         default:
         normal:
-            if (c != *string && !(ISSET(flags, WM_CASEFOLD) &&
+            if (c != *string && !(check_flag(flags, WM_CASEFOLD) &&
                  (tolower((unsigned char)c) ==
                  tolower((unsigned char)*string))))
                 return (WM_NOMATCH);
@@ -226,7 +226,7 @@ rangematch(const char *pattern, char test, int flags, const char **newp)
     if ((negate = (*pattern == '!' || *pattern == '^')))
         ++pattern;
 
-    if (ISSET(flags, WM_CASEFOLD))
+    if (check_flag(flags, WM_CASEFOLD))
         test = tolower((unsigned char)test);
 
     /*
@@ -237,21 +237,22 @@ rangematch(const char *pattern, char test, int flags, const char **newp)
     ok = 0;
     c = *pattern++;
     do {
-        if (c == '\\' && !ISSET(flags, WM_NOESCAPE))
+        if (c == '\\' && !check_flag(flags, WM_NOESCAPE))
             c = *pattern++;
-        if (c == EOS)
+        if (c == EOS) {
             return (RANGE_ERROR);
-        if (c == '/' && ISSET(flags, WM_PATHNAME))
+        }
+        if (c == '/' && check_flag(flags, WM_PATHNAME))
             return (RANGE_NOMATCH);
         if (*pattern == '-'
             && (c2 = *(pattern+1)) != EOS && c2 != ']') {
             pattern += 2;
-            if (c2 == '\\' && !ISSET(flags, WM_NOESCAPE))
+            if (c2 == '\\' && !check_flag(flags, WM_NOESCAPE))
                 c2 = *pattern++;
             if (c2 == EOS)
                 return (RANGE_ERROR);
 
-            if (ISSET(flags, WM_CASEFOLD)) {
+            if (check_flag(flags, WM_CASEFOLD)) {
                 c = tolower((unsigned char)c);
                 c2 = tolower((unsigned char)c2);
             }
