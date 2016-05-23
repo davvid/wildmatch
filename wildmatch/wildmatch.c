@@ -67,6 +67,7 @@ int wildmatch(const char *pattern, const char *string, int flags)
     const char *newp;
     const char *slash;
     char c, test;
+    char prev;
     int wild = 0;
 
     /* WM_WILDSTAR implies WM_PATHNAME and WM_PERIOD. */
@@ -95,6 +96,7 @@ int wildmatch(const char *pattern, const char *string, int flags)
             c = *pattern;
             wild = check_flag(flags, WM_WILDSTAR) && pattern[0] == '*';
             if (wild) {
+                prev = pattern[-2];
                 /* Collapse multiple stars and slash-** patterns,
                  * e.g. "** / *** / **** / **" (without spaces)
                  * is treated as a single ** wildstar.
@@ -102,7 +104,9 @@ int wildmatch(const char *pattern, const char *string, int flags)
                 while (c == '*') {
                     c = *++pattern;
                 }
+
                 while (c == '/' && pattern[1] == '*' && pattern[2] == '*') {
+                    prev = c;
                     c = *++pattern;
                     while (c == '*') {
                         c = *++pattern;
@@ -122,7 +126,7 @@ int wildmatch(const char *pattern, const char *string, int flags)
 
             /* Optimize for pattern with * or ** at end or before /. */
             if (c == EOS) {
-                if (wild && pattern[-3] == '/') {
+                if (wild && prev == '/') {
                     return (0);
                 }
                 if (check_flag(flags, WM_PATHNAME)) {

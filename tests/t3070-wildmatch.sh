@@ -269,4 +269,13 @@ imatch 1 'a' '[B-a]'
 imatch 1 'z' '[Z-y]'
 imatch 1 'Z' '[Z-y]'
 
+# Additional edge cases
+match 1 0 'deep/foo/bar/baz/x' 'deep/**'
+match 1 0 'deep/foo/bar/baz/x' 'deep/***'
+match 1 0 'deep/foo/bar/baz/x' 'deep/*****'
+match 1 0 'deep/foo/bar/baz/x' 'deep/******'
+match 1 0 'deep/foo/bar/baz/x' 'deep/***/**'
+match 1 0 'deep/foo/bar/baz/x' 'deep/***/***'
+match 1 0 'deep/foo/bar/baz/x' 'deep/**/***/****/*****'
+
 test_done
