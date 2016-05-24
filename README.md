@@ -1,6 +1,6 @@
 wildmatch
 =========
-Wildmatch is a BSD-licensed library for git/rsync-style pattern matching
+wildmatch is a BSD-licensed C/C++ library for git/rsync-style pattern matching
 
 [![wildmatch build status](https://api.travis-ci.org/davvid/wildmatch.svg?branch=master)](https://travis-ci.org/davvid/wildmatch)
 
@@ -111,9 +111,9 @@ to link against both libraries.
 
 REQUIREMENTS
 ------------
-* [cmake](https://cmake.org/) is used for the build system
+* A C99-compatible compiler is needed for the C API.
 * A C++11-compatible compiler is needed to build and use the C++ API.
-* A C89-compatible compiler is needed for the C API.
+* [cmake](https://cmake.org/) >= 2.8.12 is used to build the project.
 
 SEE ALSO
 --------

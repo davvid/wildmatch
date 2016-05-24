@@ -43,16 +43,13 @@
 extern "C" {
 #endif
 
-#undef  EOS
 #define EOS '\0'
-
 #define RANGE_MATCH 1
 #define RANGE_NOMATCH 0
 #define RANGE_ERROR -1
 
 #define check_flag(flags, opts) ((flags) & (opts))
 
-extern int isblank(int);
 static int rangematch(const char *, char, int, const char **);
 
 int wildmatch(const char *pattern, const char *string, int flags)

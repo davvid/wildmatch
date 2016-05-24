@@ -10,7 +10,7 @@ set(${PROJECT_NAME}_MAJOR_VERSION 0)
 set(${PROJECT_NAME}_MINOR_VERSION 5)
 set(${PROJECT_NAME}_PATCH_LEVEL 0)
 
-set(PROJECT_CFLAGS -std=c89 -Wall -Wextra -Wno-unused-parameter)
+set(PROJECT_CFLAGS -std=c99 -Wall -Wextra -Wno-unused-parameter)
 set(PROJECT_CXXFLAGS -std=c++11 -Wall -Wextra -Wno-unused-parameter)
 include_directories(${CMAKE_SOURCE_DIR})
 
