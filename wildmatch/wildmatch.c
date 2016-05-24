@@ -48,7 +48,7 @@ extern "C" {
 
 #define RANGE_MATCH 1
 #define RANGE_NOMATCH 0
-#define RANGE_ERROR (-1)
+#define RANGE_ERROR -1
 
 #define check_flag(flags, opts) ((flags) & (opts))
 
@@ -73,17 +73,17 @@ int wildmatch(const char *pattern, const char *string, int flags)
         switch (c = *pattern++) {
         case EOS:
             if (check_flag(flags, WM_LEADING_DIR) && *string == '/')
-                return (0);
-            return (*string == EOS ? 0 : WM_NOMATCH);
+                return WM_MATCH;
+            return (*string == EOS) ? WM_MATCH : WM_NOMATCH;
         case '?':
             if (*string == EOS)
-                return (WM_NOMATCH);
+                return WM_NOMATCH;
             if (*string == '/' && check_flag(flags, WM_PATHNAME))
-                return (WM_NOMATCH);
+                return WM_NOMATCH;
             if (*string == '.' && check_flag(flags, WM_PERIOD) &&
                 (string == stringstart ||
                 (check_flag(flags, WM_PATHNAME) && *(string - 1) == '/')))
-                return (WM_NOMATCH);
+                return WM_NOMATCH;
             ++string;
             break;
         case '*':
@@ -106,11 +106,9 @@ int wildmatch(const char *pattern, const char *string, int flags)
                         c = *++pattern;
                     }
                 }
-
-                if (c == '/') {
-                    if (wildmatch(pattern+1, string, flags) == WM_MATCH) {
-                        return WM_MATCH;
-                    }
+                if (c == '/' &&
+                        wildmatch(pattern+1, string, flags) == WM_MATCH) {
+                    return WM_MATCH;
                 }
             } else {
                 /* Collapse multiple stars. */
@@ -121,19 +119,19 @@ int wildmatch(const char *pattern, const char *string, int flags)
 
             if (!wild && *string == '.' && check_flag(flags, WM_PERIOD) &&
                 (string == stringstart ||
-                (check_flag(flags, WM_PATHNAME) && *(string - 1) == '/')))
-                return (WM_NOMATCH);
-
+                (check_flag(flags, WM_PATHNAME) && *(string - 1) == '/'))) {
+                return WM_NOMATCH;
+            }
             /* Optimize for pattern with * or ** at end or before /. */
             if (c == EOS) {
                 if (wild && prev == '/') {
-                    return (0);
+                    return WM_MATCH;
                 }
                 if (check_flag(flags, WM_PATHNAME)) {
                     return (check_flag(flags, WM_LEADING_DIR) ||
-                        strchr(string, '/') == NULL ?  0 : WM_NOMATCH);
+                        strchr(string, '/') == NULL ?  WM_MATCH : WM_NOMATCH);
                 } else {
-                    return (0);
+                    return WM_MATCH;
                 }
             } else if (c == '/') {
                 if (wild) {
@@ -143,39 +141,38 @@ int wildmatch(const char *pattern, const char *string, int flags)
                     }
                     while (slash) {
                         if (wildmatch(pattern+1, slash+1, flags) == 0) {
-                            return 0;
+                            return WM_MATCH;
                         }
                         slash = strchr(slash+1, '/');
                     }
                 } else {
                     if (check_flag(flags, WM_PATHNAME)) {
                         if ((string = strchr(string, '/')) == NULL) {
-                            return (WM_NOMATCH);
+                            return WM_NOMATCH;
                         }
                     }
                 }
             } else if (wild) {
                 return WM_NOMATCH;
             }
-
             /* General case, use recursion. */
             while ((test = *string) != EOS) {
                 if (!wildmatch(pattern, string, flags & ~WM_PERIOD))
-                    return (0);
+                    return WM_MATCH;
                 if (test == '/' && check_flag(flags, WM_PATHNAME))
                     break;
                 ++string;
             }
-            return (WM_NOMATCH);
+            return WM_NOMATCH;
         case '[':
             if (*string == EOS)
-                return (WM_NOMATCH);
+                return WM_NOMATCH;
             if (*string == '/' && check_flag(flags, WM_PATHNAME))
-                return (WM_NOMATCH);
+                return WM_NOMATCH;
             if (*string == '.' && check_flag(flags, WM_PERIOD) &&
-                (string == stringstart ||
-                (check_flag(flags, WM_PATHNAME) && *(string - 1) == '/')))
-                return (WM_NOMATCH);
+                    (string == stringstart ||
+                     (check_flag(flags, WM_PATHNAME) && *(string - 1) == '/')))
+                return WM_NOMATCH;
 
             switch (rangematch(pattern, *string, flags, &newp)) {
             case RANGE_ERROR:
@@ -206,7 +203,7 @@ int wildmatch(const char *pattern, const char *string, int flags)
             if (c != *string && !(check_flag(flags, WM_CASEFOLD) &&
                  (tolower((unsigned char)c) ==
                  tolower((unsigned char)*string))))
-                return (WM_NOMATCH);
+                return WM_NOMATCH;
             ++string;
             break;
         }
@@ -244,18 +241,20 @@ rangematch(const char *pattern, char test, int flags, const char **newp)
     do {
         if (c == '\\' && !check_flag(flags, WM_NOESCAPE))
             c = *pattern++;
-        if (c == EOS) {
-            return (RANGE_ERROR);
-        }
+
+        if (c == EOS)
+            return RANGE_ERROR;
+
         if (c == '/' && check_flag(flags, WM_PATHNAME))
-            return (RANGE_NOMATCH);
+            return RANGE_NOMATCH;
+
         if (*pattern == '-'
             && (c2 = *(pattern+1)) != EOS && c2 != ']') {
             pattern += 2;
             if (c2 == '\\' && !check_flag(flags, WM_NOESCAPE))
                 c2 = *pattern++;
             if (c2 == EOS)
-                return (RANGE_ERROR);
+                return RANGE_ERROR;
 
             if (check_flag(flags, WM_CASEFOLD)) {
                 c = tolower((unsigned char)c);
@@ -310,7 +309,7 @@ rangematch(const char *pattern, char test, int flags, const char **newp)
     } while ((c = *pattern++) != ']');
 
     *newp = (const char *)pattern;
-    return (ok == negate ? RANGE_NOMATCH : RANGE_MATCH);
+    return (ok == negate) ? RANGE_NOMATCH : RANGE_MATCH;
 }
 
 #ifdef __cplusplus
