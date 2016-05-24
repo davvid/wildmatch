@@ -64,7 +64,7 @@ int wildmatch(const char *pattern, const char *string, int flags)
     char prev;
     int wild = 0;
 
-    /* WM_WILDSTAR implies WM_PATHNAME and WM_PERIOD. */
+    /* WM_WILDSTAR implies WM_PATHNAME. */
     if (check_flag(flags, WM_WILDSTAR)) {
         flags |= WM_PATHNAME;
     }
