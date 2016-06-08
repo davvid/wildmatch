@@ -1,8 +1,8 @@
 #!/usr/bin/env make
 SH ?= sh
-uname_S := $(shell $(SH) -c 'uname -s || echo system')
-uname_R := $(shell $(SH) -c 'uname -r | cut -d- -f1 || echo release')
-uname_M := $(shell $(SH) -c 'uname -m || echo cpu')
+uname_S := $(shell $(SH) -c 'uname -s || echo unknown')
+uname_R := $(shell $(SH) -c 'uname -r | cut -d- -f1 || echo 0.0.0')
+uname_M := $(shell $(SH) -c 'uname -m || echo unknown')
 FLAVOR ?= optimize
 
 platformdir ?= $(uname_S)-$(uname_R)-$(uname_M)-$(FLAVOR)
@@ -24,12 +24,12 @@ CMAKE_FILES = CMakeLists.txt
 all::
 
 install: all
-	$(MAKE) -C $(builddir) DESTDIR=$(DESTDIR) install
+	$(MAKE) -C $(builddir) prefix=$(prefix) DESTDIR=$(DESTDIR) install
 .PHONY: install
 
 $(builddir)/stamp: $(CMAKE_FILES)
 	mkdir -p $(builddir)
-	cd $(builddir) && cmake $(CMAKE_FLAGS) ../..
+	cd $(builddir) && cmake $(CMAKE_FLAGS) $(CURDIR)
 	touch $@
 
 all:: $(builddir)/stamp
