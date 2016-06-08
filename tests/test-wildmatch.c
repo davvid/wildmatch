@@ -8,7 +8,7 @@
 
 void die(const char *msg)
 {
-    fprintf(stderr, "error: %s\n", msg);
+    fprintf(stderr, "%s\n", msg);
     exit(1);
 }
 
