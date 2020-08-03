@@ -2,7 +2,7 @@ wildmatch
 =========
 wildmatch is a BSD-licensed C/C++ library for git/rsync-style pattern matching
 
-[![travis build status](https://api.travis-ci.org/davvid/wildmatch.svg?branch=master)](https://travis-ci.org/davvid/wildmatch)
+[![travis build status](https://api.travis-ci.org/davvid/wildmatch.svg?branch=main)](https://travis-ci.org/davvid/wildmatch)
 [![coverity scan results](https://scan.coverity.com/projects/8965/badge.svg)](https://scan.coverity.com/projects/davvid-wildmatch)
 
 SYNOPSIS
@@ -53,7 +53,7 @@ The C++ API returns a boolean `true` (match) or `false` (no match).
 HISTORY
 -------
 Wildmatch's extended syntax was developed by targetting the
-[wildmatch test cases](https://github.com/git/git/blob/master/t/t3070-wildmatch.sh)
+[wildmatch test cases](https://github.com/git/git/blob/maint/t/t3070-wildmatch.sh)
 from [Git](https://git-scm.com).
 
 The "wildmatch" name is from an internal library in
