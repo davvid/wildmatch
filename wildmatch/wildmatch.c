@@ -55,6 +55,7 @@ static int rangematch(const char *, char, int, const char **);
 int wildmatch(const char *pattern, const char *string, int flags)
 {
     const char *stringstart;
+    const char *patternstart;
     const char *newp;
     const char *slash;
     char c, test;
@@ -66,7 +67,7 @@ int wildmatch(const char *pattern, const char *string, int flags)
         flags |= WM_PATHNAME;
     }
 
-    for (stringstart = string;;) {
+    for (stringstart = string, patternstart = pattern;;) {
         switch (c = *pattern++) {
         case EOS:
             if (check_flag(flags, WM_LEADING_DIR) && *string == '/')
@@ -87,7 +88,7 @@ int wildmatch(const char *pattern, const char *string, int flags)
             c = *pattern;
             wild = check_flag(flags, WM_WILDSTAR) && c == '*';
             if (wild) {
-                prev = pattern[-2];
+                prev = ((pattern - 2) >= patternstart) ? pattern[-2] : '\0';
                 /* Collapse multiple stars and slash-** patterns,
                  * e.g. "** / *** / **** / **" (without spaces)
                  * is treated as a single ** wildstar.
@@ -189,7 +190,7 @@ int wildmatch(const char *pattern, const char *string, int flags)
                 if ((c = *pattern++) == EOS) {
                     c = '\\';
                     --pattern;
-                    if (*(string+1) == EOS) {
+                    if (*(string) == EOS || *(string+1) == EOS) {
                         return WM_NOMATCH;
                     }
                 }
